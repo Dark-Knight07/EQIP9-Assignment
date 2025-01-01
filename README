@@ -1,0 +1,148 @@
+Listing S3 Bucket Content Using Python
+Project Overview
+This project demonstrates how to list the contents of an AWS S3 bucket or a specific directory inside the bucket using Python and the Boto3 AWS SDK. The solution allows you to query the S3 bucket content using a Python script and retrieve the content in JSON format.
+
+Features
+Lists the top-level content of an S3 bucket.
+Allows listing content within specific directories inside the S3 bucket.
+Returns the content in JSON format.
+Handles various error scenarios such as missing AWS credentials or empty buckets.
+Prerequisites
+Python 3.x installed on your system.
+AWS Account with S3 access and necessary permissions.
+Boto3 Python library to interact with AWS S3.
+Installation Steps
+Install Python (if not already installed):
+
+Download and install Python 3.x from Python Official Website.
+Install Boto3: Install the Boto3 library using the following command:
+
+bash
+Copy code
+pip install boto3
+AWS Credentials Configuration:
+
+Configure your AWS CLI credentials using:
+bash
+Copy code
+aws configure
+Alternatively, you can set your AWS credentials (Access Key ID, Secret Access Key, and Region) directly in the script or as environment variables.
+Clone or Download the Project:
+
+Clone or download this repository to your local machine.
+How to Use the Script
+Python Script: list_s3_content.py
+python
+Copy code
+import boto3
+from botocore.exceptions import NoCredentialsError, PartialCredentialsError
+
+# Initialize the S3 client
+s3 = boto3.client(
+    's3', 
+    region_name='us-east-1',  # Replace with your AWS region
+    aws_access_key_id='YOUR_ACCESS_KEY_ID',  # Replace with your AWS Access Key ID
+    aws_secret_access_key='YOUR_SECRET_ACCESS_KEY'  # Replace with your AWS Secret Access Key
+)
+
+# Function to list S3 bucket content
+def list_bucket_content(bucket_name, path=''):
+    try:
+        # List objects in the bucket with an optional prefix (path)
+        response = s3.list_objects_v2(Bucket=bucket_name, Prefix=path)
+
+        if 'Contents' in response:
+            # If content exists, extract the keys (file/directory names)
+            content = [item['Key'] for item in response['Contents']]
+            print("Bucket Content:", content)
+        else:
+            print(f"No content found in the specified path '{path}'.")
+
+    except NoCredentialsError:
+        print("Error: AWS credentials are not available.")
+    except PartialCredentialsError:
+        print("Error: AWS credentials are incomplete.")
+    except Exception as e:
+        print(f"Error: {e}")
+
+# Example Usage:
+# List the top-level content of the bucket (no path specified)
+list_bucket_content('your-bucket-name')  # Replace with your bucket name
+
+# List content in a specific directory/path inside the bucket
+list_bucket_content('your-bucket-name', 'dir1/')  # Replace with your bucket name and path
+Functionality:
+List Top-Level Content: To list the contents of the S3 bucket without specifying any path, call the function as:
+
+python
+Copy code
+list_bucket_content('your-bucket-name')
+Example output:
+
+json
+Copy code
+{
+  "content": ["file1", "file2", "dir1", "dir2"]
+}
+List Content in Specific Directory: To list contents inside a specific directory (e.g., dir1/), use:
+
+python
+Copy code
+list_bucket_content('your-bucket-name', 'dir1/')
+Example output:
+
+json
+Copy code
+{
+  "content": []
+}
+Error Handling:
+The script handles errors such as missing or incomplete credentials, empty buckets, and other exceptions. You will receive an error message indicating the type of issue.
+Testing the Script
+Save the Python script as list_s3_content.py on your local machine.
+
+Run the Script: Open a terminal or command prompt and navigate to the folder where the script is saved. Run the following command:
+
+bash
+Copy code
+python list_s3_content.py
+Expected Output: The script will print the content of the specified bucket or directory in JSON format.
+
+Example Scenarios
+Scenario 1: List top-level content
+Request: GET http://<IP>:<PORT>/list-bucket-content
+
+Response:
+
+json
+Copy code
+{
+  "content": ["dir1", "dir2", "file1", "file2"]
+}
+Scenario 2: List content of dir1/ directory
+Request: GET http://<IP>:<PORT>/list-bucket-content/dir1
+
+Response:
+
+json
+Copy code
+{
+  "content": []
+}
+Scenario 3: List content of dir2/ directory
+Request: GET http://<IP>:<PORT>/list-bucket-content/dir2
+
+Response:
+
+json
+Copy code
+{
+  "content": ["file1", "file2"]
+}
+Project Structure
+plaintext
+Copy code
+list_s3_content.py        # Python script to list S3 bucket contents
+README.md                 # This README file
+License
+This project is licensed under the MIT License - see the LICENSE file for details.
